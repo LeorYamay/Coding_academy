@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Form</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body  onload="onInit()">
+
+    <section class="user-pref">
+        <form id="userForm" action="#" method="post">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="Insert your email here" required><br>
+            <div class="age-container">
+                <label for="age">Age:</label>
+                <input type="range" id="age" name="age" min="18" max="120" value="18">
+                <span id="ageValue">18</span>
+            </div>
+            <h2>Colors</h2>
+            <label for="txtColor">Text Color:</label>
+            <input type="color" id="txtColor" name="txtColor" value="#000000"><br>
+
+            <label for="bgColor">Background Color:</label>
+            <input type="color" id="bgColor" name="bgColor" value="#FFFFFF"><br>
+
+            <h2>Birth</h2>
+            <label for="birthDate">Birth Date:</label>
+            <input type="date" id="birthDate" name="birthDate" value=""><br>
+
+            <label for="birthTime">Birth Time:</label>
+            <input type="time" id="birthTime" name="birthTime" value=""><br>
+
+            <button type="submit">Submit</button>
+        </form>
+    </section>
+    <script type="module" src="js/app.controller.js"></script>
+</body>
+</html>
