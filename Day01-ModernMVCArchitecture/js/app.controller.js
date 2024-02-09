@@ -1,14 +1,75 @@
 'use strict'
-window.onInit = onInit
 
+import { getUser,setUser } from "./services/user.service.js"
+const apiKey = 'AIzaSyCdOo7wsvXdx7LdpHAP_ls6LNB5OasbG_U';
+
+window.onInit = onInit;
+window.submitForm = submitForm;
+window.selectedPrefs = selectedPrefs;
+window.selectedMap = selectedMap;
+var user;
 function onInit() {
-// Add event listeners to the age slider and birth date input
-document.getElementById("age").addEventListener("input", updateSliderAction);
-document.getElementById("birthDate").addEventListener("blur", updateDateAction);
+    document.getElementById("age").addEventListener("input", updateSliderAction);
+    document.getElementById("birthDate").addEventListener("blur", updateDateAction);
+    user=getUser();
+    if (user){
+        hidePrefs();
+        setHomeStyleFromUser(user);
+    }
+    else{
+        hideMap();
+        // hideHome();
+    }
 }
 
+function setHomeStyleFromUser(user) {
+    let home = document.querySelector(".home");
+    home.style.color = user.txtColor;
+    home.style.backgroundColor = user.bgColor;
+}
 
+function hideMap() {
+    document.querySelector(".map").classList.add("hiddenSection");
+}
+function showMap() {
+    document.querySelector(".map").classList.remove("hiddenSection");
+}
+function hideHome() {
+    document.querySelector(".home").classList.add("hiddenSection");
+}
+function showMapHome() {
+    document.querySelector(".home").classList.remove("hiddenSection");
+}
+function hidePrefs() {
+    document.querySelector(".user-pref").classList.add("hiddenSection");
+}
+function showPrefs() {
+    document.querySelector(".user-pref").classList.remove("hiddenSection");
+}
 
+function selectedPrefs(){
+    showPrefs();
+    hideMap();
+    // hideHome();
+    let form = document.getElementById("userForm");
+
+    if (user)
+    {
+        form.elements["email"].value = user.email;
+        form.elements["age"].value =user.age;
+        form.elements["txtColor"].value=user.txtColor;
+        form.elements["bgColor"].value=user.bgColor;
+        form.elements["birthDate"].value=user.birthDate;
+        form.elements["birthTime"].value=user.birthTime;
+    }
+
+}
+
+function selectedMap()
+{
+    showMap();
+    hidePrefs();
+}
 function updateSliderAction() {
     const ageSlider = document.getElementById("age");
     let ageValueSpan = document.getElementById("ageValue");
@@ -23,15 +84,49 @@ function updateSliderAction() {
     birthDateInput.value = formattedDate;
 }
 
-function updateDateAction(){
+function updateDateAction() {
     let ageSlider = document.getElementById("age");
     let ageValueSpan = document.getElementById("ageValue");
     const birthDateInput = new Date(document.getElementById("birthDate").value);
 
     let currentDate = new Date();
-    let diff =(currentDate.getFullYear() - birthDateInput.getFullYear());
+    let diff = (currentDate.getFullYear() - birthDateInput.getFullYear());
     ageSlider.value = diff;
 
     // Update age value span
     ageValueSpan.textContent = ageSlider.value;
+}
+
+function submitForm(event) {
+    event.preventDefault();
+
+    let form = document.getElementById("userForm");
+
+    let email = form.elements["email"].value;
+    let age = form.elements["age"].value;
+    let txtColor = form.elements["txtColor"].value;
+    let bgColor = form.elements["bgColor"].value;
+    let birthDate = form.elements["birthDate"].value;
+    let birthTime = form.elements["birthTime"].value;
+
+    console.log("Email: " + email);
+    console.log("Age: " + age);
+    console.log("Text Color: " + txtColor);
+    console.log("Background Color: " + bgColor);
+    console.log("Birth Date: " + birthDate);
+    console.log("Birth Time: " + birthTime);
+    hideHome()
+    var user = {
+        email:email,
+        txtColor:txtColor,
+        bgColor:bgColor,
+        age:age,
+        birthDate:birthDate,
+        birthTime:birthTime
+    }
+    let userJson = JSON.stringify(user)
+    console.log("user:",userJson);
+    setUser(userJson);
+    setHomeStyleFromUser(user);
+    showMap()
 }

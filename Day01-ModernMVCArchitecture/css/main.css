@@ -1,0 +1,9 @@
+/* main.css */
+
+.hiddenSection{
+    display: none;
+}
+.home{
+    color:blue;
+    background-color: red;
+}
