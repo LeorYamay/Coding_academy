@@ -1,7 +1,7 @@
 'use strict'
 
-import { getUser,setUser } from "./services/user.service.js"
-const apiKey = 'AIzaSyCdOo7wsvXdx7LdpHAP_ls6LNB5OasbG_U';
+import { getUser, setUser } from "./services/user.service.js"
+
 
 window.onInit = onInit;
 window.submitForm = submitForm;
@@ -11,17 +11,34 @@ var user;
 function onInit() {
     document.getElementById("age").addEventListener("input", updateSliderAction);
     document.getElementById("birthDate").addEventListener("blur", updateDateAction);
-    user=getUser();
-    if (user){
+    user = getUser();
+    initMap();
+    if (user) {
         hidePrefs();
         setHomeStyleFromUser(user);
     }
-    else{
+    else {
         hideMap();
         // hideHome();
     }
 }
+function initMap() {
+    const apiKey = 'AIzaSyCdOo7wsvXdx7LdpHAP_ls6LNB5OasbG_U';
+    const location = '29.5577,34.9519'; // Eilat
+    const zoomLevel = 14;
 
+
+    const embedUrl = `https://www.google.com/maps/embed/v1/view?key=${apiKey}&center=${location}&zoom=${zoomLevel}`;
+
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('src', embedUrl);
+    iframe.setAttribute('width', '600');
+    iframe.setAttribute('height', '450');
+    iframe.setAttribute('frameborder', '0');
+    iframe.setAttribute('style', 'border:0;');
+
+    document.getElementById('map-container').appendChild(iframe);
+}
 function setHomeStyleFromUser(user) {
     let home = document.querySelector(".home");
     home.style.color = user.txtColor;
@@ -47,26 +64,24 @@ function showPrefs() {
     document.querySelector(".user-pref").classList.remove("hiddenSection");
 }
 
-function selectedPrefs(){
+function selectedPrefs() {
     showPrefs();
     hideMap();
     // hideHome();
     let form = document.getElementById("userForm");
 
-    if (user)
-    {
+    if (user) {
         form.elements["email"].value = user.email;
-        form.elements["age"].value =user.age;
-        form.elements["txtColor"].value=user.txtColor;
-        form.elements["bgColor"].value=user.bgColor;
-        form.elements["birthDate"].value=user.birthDate;
-        form.elements["birthTime"].value=user.birthTime;
+        form.elements["age"].value = user.age;
+        form.elements["txtColor"].value = user.txtColor;
+        form.elements["bgColor"].value = user.bgColor;
+        form.elements["birthDate"].value = user.birthDate;
+        form.elements["birthTime"].value = user.birthTime;
     }
 
 }
 
-function selectedMap()
-{
+function selectedMap() {
     showMap();
     hidePrefs();
 }
@@ -115,17 +130,17 @@ function submitForm(event) {
     console.log("Background Color: " + bgColor);
     console.log("Birth Date: " + birthDate);
     console.log("Birth Time: " + birthTime);
-    hideHome()
+    hidePrefs()
     var user = {
-        email:email,
-        txtColor:txtColor,
-        bgColor:bgColor,
-        age:age,
-        birthDate:birthDate,
-        birthTime:birthTime
+        email: email,
+        txtColor: txtColor,
+        bgColor: bgColor,
+        age: age,
+        birthDate: birthDate,
+        birthTime: birthTime
     }
     let userJson = JSON.stringify(user)
-    console.log("user:",userJson);
+    console.log("user:", userJson);
     setUser(userJson);
     setHomeStyleFromUser(user);
     showMap()
