@@ -1,18 +1,19 @@
 'use strict'
 
-import { getUser, setUser } from "./services/user.service.js"
-
+import { userService } from "./services/user.service.js"
+import {placeService} from "./services/place.service.js"
 
 window.onInit = onInit;
 window.submitForm = submitForm;
 window.selectedPrefs = selectedPrefs;
 window.selectedMap = selectedMap;
+window.downloadCSV = downloadCSV;
 var user;
+var gMap;
 function onInit() {
     document.getElementById("age").addEventListener("input", updateSliderAction);
     document.getElementById("birthDate").addEventListener("blur", updateDateAction);
-    user = getUser();
-    initMap();
+    user = userService.getUser();
     if (user) {
         hidePrefs();
         setHomeStyleFromUser(user);
@@ -21,23 +22,55 @@ function onInit() {
         hideMap();
         // hideHome();
     }
+    initMap();
+    renderPlaces();
 }
-function initMap() {
-    const apiKey = 'AIzaSyCdOo7wsvXdx7LdpHAP_ls6LNB5OasbG_U';
-    const location = '29.5577,34.9519'; // Eilat
-    const zoomLevel = 14;
+async function initMap() {
+        const { Map } = await google.maps.importLibrary("maps");
+        let mapContainer = document.getElementById("map-container")
+        gMap = new Map(mapContainer, {
+          center: { lat: 29.5577, lng: 34.9519 },
+          zoom: 14,
+        });
+        gMap.addListener('click',async ev => { const name = prompt('Place name?', 'Place 1') 
+        const lat = ev.latLng.lat() 
+        const lng = ev.latLng.lng() 
+        await placeService.addPlace(name, lat, lng, gMap.getZoom()) 
+        renderPlaces() })
+}
+async function renderPlaces() {
+    const places = await placeService.getPlaces();
+    const placeList = document.getElementById("place-list");
+    placeList.innerHTML = "";
+    if (places.length>0)
+    {
+        places.map(place => {
+            let li = document.createElement("li");
+            let placeText = document.createTextNode(place.name)
+            li.appendChild(placeText)
+            let deleteButton = document.createElement("button");
+            deleteButton.innerHTML = "X";
+            deleteButton.addEventListener("click", async function () {
+                // const id = place.id
+                await placeService.removePlace(place.id);
+                li.remove();
+            });
+            li.appendChild(deleteButton);
+            let goButton = document.createElement("button");
+            goButton.innerHTML = "GO";
+            goButton.addEventListener("click", async function() {
+                await onPanToPlace(place.id)
+            })
+            
+            li.appendChild(goButton);
+            placeList.appendChild(li);
+        })
 
+    }
 
-    const embedUrl = `https://www.google.com/maps/embed/v1/view?key=${apiKey}&center=${location}&zoom=${zoomLevel}`;
+}
+function onRemovePlace(placeId) {
 
-    const iframe = document.createElement('iframe');
-    iframe.setAttribute('src', embedUrl);
-    iframe.setAttribute('width', '600');
-    iframe.setAttribute('height', '450');
-    iframe.setAttribute('frameborder', '0');
-    iframe.setAttribute('style', 'border:0;');
-
-    document.getElementById('map-container').appendChild(iframe);
 }
 function setHomeStyleFromUser(user) {
     let home = document.querySelector(".home");
@@ -50,12 +83,6 @@ function hideMap() {
 }
 function showMap() {
     document.querySelector(".map").classList.remove("hiddenSection");
-}
-function hideHome() {
-    document.querySelector(".home").classList.add("hiddenSection");
-}
-function showMapHome() {
-    document.querySelector(".home").classList.remove("hiddenSection");
 }
 function hidePrefs() {
     document.querySelector(".user-pref").classList.add("hiddenSection");
@@ -141,7 +168,22 @@ function submitForm(event) {
     }
     let userJson = JSON.stringify(user)
     console.log("user:", userJson);
-    setUser(userJson);
+    userService.setUser(userJson);
     setHomeStyleFromUser(user);
     showMap()
 }
+
+
+function downloadCSV() {
+    //todo understand this part
+    const csvContent = "1,2,3";
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const csbButton = document.getElementById('download-csv');
+    csbButton.href = window.URL.createObjectURL(blob);
+  }
+
+async function onPanToPlace(placeId) {
+     const place = await placeService.getPlaceById(placeId) 
+     gMap.setCenter({ lat: place.lat, lng: place.lng}) 
+     gMap.setZoom(place.zoom) 
+    }

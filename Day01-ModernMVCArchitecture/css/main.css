@@ -1,9 +1,22 @@
 /* main.css */
 
 .hiddenSection{
-    display: none;
+    display: none !important;
 }
 .home{
     color:blue;
     background-color: red;
+}
+
+.map {
+    display: flex;
+}
+
+#location-container {
+    flex: 1;
+    padding: 10px; 
+}
+#map-container{
+    height: 400px;
+    width: 600px;
 }
