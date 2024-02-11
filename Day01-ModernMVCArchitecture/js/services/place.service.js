@@ -15,7 +15,6 @@ async function getPlaces() {
     // }
 }
 async function removePlace(placeId) {
-    debugger
     const places = await getPlaces();
     let index =  places.findIndex(reqPlace => reqPlace.id === placeId)
     console.log("index",index)
@@ -27,16 +26,16 @@ async function addPlace( name, lat, lng, zoom) {
         let place = {
             id:_makeId(),
             name:name,
-            latitude:lat,
-            longitude:lng,
+            lat:lat,
+            lng:lng,
             zoom:zoom
         }
-        debugger
         places.push(place)
         localStorage.setItem(placesID, JSON.stringify(places))
 }
-function getPlaceById(placeId) {
-    let place =localStorage.getItem(placeId)
+async function getPlaceById(placeId) {
+    const places = await getPlaces();
+    let place =  places.find(reqPlace => reqPlace.id === placeId)
     if (place)
     {
         return place
@@ -44,7 +43,9 @@ function getPlaceById(placeId) {
     console.error(`ID '${placeId}' not found`)
     throw (`wrongid `)
 }
-function _createPlace(name, lat, lng, zoom) {}
+function _createPlace(name, lat, lng, zoom) {
+
+}
 function _createPlaces() {}
 
 

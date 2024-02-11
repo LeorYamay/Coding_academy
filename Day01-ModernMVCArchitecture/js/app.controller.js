@@ -1,7 +1,7 @@
 'use strict'
 
 import { userService } from "./services/user.service.js"
-import {placeService} from "./services/place.service.js"
+import { placeService } from "./services/place.service.js"
 
 window.onInit = onInit;
 window.submitForm = submitForm;
@@ -10,6 +10,7 @@ window.selectedMap = selectedMap;
 window.downloadCSV = downloadCSV;
 var user;
 var gMap;
+var gMarkers=[];
 function onInit() {
     document.getElementById("age").addEventListener("input", updateSliderAction);
     document.getElementById("birthDate").addEventListener("blur", updateDateAction);
@@ -23,27 +24,31 @@ function onInit() {
         // hideHome();
     }
     initMap();
-    renderPlaces();
 }
 async function initMap() {
-        const { Map } = await google.maps.importLibrary("maps");
-        let mapContainer = document.getElementById("map-container")
-        gMap = new Map(mapContainer, {
-          center: { lat: 29.5577, lng: 34.9519 },
-          zoom: 14,
-        });
-        gMap.addListener('click',async ev => { const name = prompt('Place name?', 'Place 1') 
-        const lat = ev.latLng.lat() 
-        const lng = ev.latLng.lng() 
-        await placeService.addPlace(name, lat, lng, gMap.getZoom()) 
-        renderPlaces() })
+    const { Map } = await google.maps.importLibrary("maps");
+    let mapContainer = document.getElementById("map-container")
+    gMap = new Map(mapContainer, {
+        center: { lat: 29.5577, lng: 34.9519 },
+        zoom: 14,
+    });
+    gMap.addListener('click', async ev => {
+        //could be nice to get the name of the place or a place nearby as a suggestion for the user
+        const name = prompt('Place name?', 'Place 1')
+        const lat = ev.latLng.lat()
+        const lng = ev.latLng.lng()
+        await placeService.addPlace(name, lat, lng, gMap.getZoom())
+        await renderMarkers();
+        await renderPlaces();
+    })
+    await renderPlaces();
+    await renderMarkers();
 }
 async function renderPlaces() {
     const places = await placeService.getPlaces();
     const placeList = document.getElementById("place-list");
     placeList.innerHTML = "";
-    if (places.length>0)
-    {
+    if (places.length > 0) {
         places.map(place => {
             let li = document.createElement("li");
             let placeText = document.createTextNode(place.name)
@@ -51,17 +56,16 @@ async function renderPlaces() {
             let deleteButton = document.createElement("button");
             deleteButton.innerHTML = "X";
             deleteButton.addEventListener("click", async function () {
-                // const id = place.id
-                await placeService.removePlace(place.id);
+                onRemovePlace(place.id)
                 li.remove();
             });
             li.appendChild(deleteButton);
             let goButton = document.createElement("button");
             goButton.innerHTML = "GO";
-            goButton.addEventListener("click", async function() {
+            goButton.addEventListener("click", async function () {
                 await onPanToPlace(place.id)
             })
-            
+
             li.appendChild(goButton);
             placeList.appendChild(li);
         })
@@ -69,8 +73,29 @@ async function renderPlaces() {
     }
 
 }
-function onRemovePlace(placeId) {
+async function onPanToPlace(placeId) {
+    const place = await placeService.getPlaceById(placeId)
+    gMap.setCenter({ lat: place.lat, lng: place.lng })
+    gMap.setZoom(place.zoom)
+}
 
+async function renderMarkers() {
+    const places = await placeService.getPlaces()
+    // remove previous markers 
+    gMarkers.forEach(marker => marker.setMap(null))
+    // every place is creating a marker 
+    gMarkers = places.map(place => {
+        return new google.maps.Marker({
+            position: place,
+            map: gMap,
+            title: place.name
+        })
+    })
+}
+async function onRemovePlace(placeId) {
+    await placeService.removePlace(placeId);
+    await renderMarkers();
+    await renderPlaces();
 }
 function setHomeStyleFromUser(user) {
     let home = document.querySelector(".home");
@@ -174,16 +199,24 @@ function submitForm(event) {
 }
 
 
-function downloadCSV() {
-    //todo understand this part
-    const csvContent = "1,2,3";
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const csbButton = document.getElementById('download-csv');
-    csbButton.href = window.URL.createObjectURL(blob);
-  }
+async function downloadCSV() {
+    debugger
+    let places = await placeService.getPlaces();
+    
+    let header = Object.keys(places[0]).join(',') + '\n';
+    let csvRows = places.map(obj=>Object.values(obj).join(',')+ '\n')
+    let csvData = header + csvRows.join('');
+    
+    const blob = new Blob([csvData], { type: 'text/csv' });
+    
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'places.csv';
 
-async function onPanToPlace(placeId) {
-     const place = await placeService.getPlaceById(placeId) 
-     gMap.setCenter({ lat: place.lat, lng: place.lng}) 
-     gMap.setZoom(place.zoom) 
-    }
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+}
+
