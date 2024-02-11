@@ -17,7 +17,6 @@ async function getPlaces() {
 async function removePlace(placeId) {
     const places = await getPlaces();
     let index =  places.findIndex(reqPlace => reqPlace.id === placeId)
-    console.log("index",index)
     places.splice(index, 1)
     localStorage.setItem(placesID, JSON.stringify(places))
 }

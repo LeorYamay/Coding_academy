@@ -69,7 +69,12 @@ async function renderPlaces() {
             li.appendChild(goButton);
             placeList.appendChild(li);
         })
-
+        const csvButton = document.getElementById("download-csv");
+        csvButton.disabled = false;
+    }
+    else{
+        const csvButton = document.getElementById("download-csv");
+        csvButton.disabled = true;
     }
 
 }
