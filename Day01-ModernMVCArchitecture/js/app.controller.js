@@ -8,6 +8,9 @@ window.submitForm = submitForm;
 window.selectedPrefs = selectedPrefs;
 window.selectedMap = selectedMap;
 window.downloadCSV = downloadCSV;
+window.panToMyLocation = panToMyLocation;
+
+
 var user;
 var gMap;
 var gMarkers=[];
@@ -83,7 +86,24 @@ async function onPanToPlace(placeId) {
     gMap.setCenter({ lat: place.lat, lng: place.lng })
     gMap.setZoom(place.zoom)
 }
-
+async function panToMyLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const place = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                    zoom: 18,
+                };
+                gMap.setCenter({ lat: place.lat, lng: place.lng });
+                gMap.setZoom(place.zoom);
+            },
+            (error) => console.error(error))
+    }
+    else {
+        alert("Geolocation is not supported by this browser, or you may not have allowed it.");
+    }
+}
 async function renderMarkers() {
     const places = await placeService.getPlaces()
     // remove previous markers 
@@ -126,10 +146,12 @@ function selectedPrefs() {
     hideMap();
     // hideHome();
     let form = document.getElementById("userForm");
-
+    user = userService.getUser()
     if (user) {
         form.elements["email"].value = user.email;
         form.elements["age"].value = user.age;
+        let ageValueSpan = document.getElementById("ageValue");
+        ageValueSpan.textContent = user.age;
         form.elements["txtColor"].value = user.txtColor;
         form.elements["bgColor"].value = user.bgColor;
         form.elements["birthDate"].value = user.birthDate;
