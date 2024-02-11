@@ -203,14 +203,14 @@ function submitForm(event) {
     let birthDate = form.elements["birthDate"].value;
     let birthTime = form.elements["birthTime"].value;
 
-    console.log("Email: " + email);
-    console.log("Age: " + age);
-    console.log("Text Color: " + txtColor);
-    console.log("Background Color: " + bgColor);
-    console.log("Birth Date: " + birthDate);
-    console.log("Birth Time: " + birthTime);
+    // console.log("Email: " + email);
+    // console.log("Age: " + age);
+    // console.log("Text Color: " + txtColor);
+    // console.log("Background Color: " + bgColor);
+    // console.log("Birth Date: " + birthDate);
+    // console.log("Birth Time: " + birthTime);
     hidePrefs()
-    var user = {
+    user = {
         email: email,
         txtColor: txtColor,
         bgColor: bgColor,
@@ -219,7 +219,7 @@ function submitForm(event) {
         birthTime: birthTime
     }
     let userJson = JSON.stringify(user)
-    console.log("user:", userJson);
+    // console.log("user:", userJson);
     userService.setUser(userJson);
     setHomeStyleFromUser(user);
     showMap()
@@ -227,7 +227,6 @@ function submitForm(event) {
 
 
 async function downloadCSV() {
-    debugger
     let places = await placeService.getPlaces();
     
     let header = Object.keys(places[0]).join(',') + '\n';
