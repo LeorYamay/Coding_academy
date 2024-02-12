@@ -11,12 +11,17 @@ window.downloadCSV = downloadCSV;
 window.panToMyLocation = panToMyLocation;
 
 
-var user;
-var gMap;
-var gMarkers=[];
+let user;
+let gMap;
+let gMarkers = [];
+
 function onInit() {
     document.getElementById("age").addEventListener("input", updateSliderAction);
     document.getElementById("birthDate").addEventListener("blur", updateDateAction);
+    renderSectionByUser();
+    initMap();
+}
+function renderSectionByUser() {
     user = userService.getUser();
     if (user) {
         hidePrefs();
@@ -24,10 +29,9 @@ function onInit() {
     }
     else {
         hideMap();
-        // hideHome();
     }
-    initMap();
 }
+
 async function initMap() {
     const { Map } = await google.maps.importLibrary("maps");
     let mapContainer = document.getElementById("map-container")
@@ -35,52 +39,60 @@ async function initMap() {
         center: { lat: 29.5577, lng: 34.9519 },
         zoom: 14,
     });
-    gMap.addListener('click', async ev => {
-        //could be nice to get the name of the place or a place nearby as a suggestion for the user
-        const name = prompt('Place name?', 'Place 1')
-        const lat = ev.latLng.lat()
-        const lng = ev.latLng.lng()
-        await placeService.addPlace(name, lat, lng, gMap.getZoom())
-        await renderMarkers();
-        await renderPlaces();
-    })
+    gMap.addListener('click', addPlaceFromMap())
     await renderPlaces();
     await renderMarkers();
+
+    function addPlaceFromMap() {
+        return async (ev) => {
+            // could be nice to get the name of the place or a place nearby as a suggestion for the user
+            const name = prompt('Place name?', 'Place ' + Math.random(0,1));
+            const lat = ev.latLng.lat();
+            const lng = ev.latLng.lng();
+            await placeService.addPlace(name, lat, lng, gMap.getZoom());
+            await renderMarkers();
+            await renderPlaces();
+        };
+    }
 }
 async function renderPlaces() {
     const places = await placeService.getPlaces();
     const placeList = document.getElementById("place-list");
     placeList.innerHTML = "";
-    if (places.length > 0) {
-        places.map(place => {
-            let li = document.createElement("li");
-            let placeText = document.createTextNode(place.name)
-            li.appendChild(placeText)
-            let deleteButton = document.createElement("button");
-            deleteButton.innerHTML = "X";
-            deleteButton.addEventListener("click", async function () {
-                onRemovePlace(place.id)
-                li.remove();
-            });
-            li.appendChild(deleteButton);
-            let goButton = document.createElement("button");
-            goButton.innerHTML = "GO";
-            goButton.addEventListener("click", async function () {
-                await onPanToPlace(place.id)
-            })
+    places.map(place => placeList.appendChild(renderPlace(place)));
 
-            li.appendChild(goButton);
-            placeList.appendChild(li);
-        })
-        const csvButton = document.getElementById("download-csv");
-        csvButton.disabled = false;
-    }
-    else{
-        const csvButton = document.getElementById("download-csv");
-        csvButton.disabled = true;
-    }
-
+    document.getElementById("download-csv-button").disabled = places.length === 0 ;
 }
+
+function renderPlace(place) {
+        let li = document.createElement("li");
+        let placeText = document.createTextNode(place.name);
+        li.appendChild(placeText);
+        renderDeleteButton();
+        renderGoButton();
+        return li;
+
+    function renderDeleteButton() {
+        let deleteButton = document.createElement("button");
+        deleteButton.innerHTML = "X";
+        deleteButton.addEventListener("click", async function () {
+            onRemovePlace(place.id);
+            li.remove();
+        });
+        li.appendChild(deleteButton);
+    }
+
+    function renderGoButton() {
+        let goButton = document.createElement("button");
+        goButton.innerHTML = "GO";
+        goButton.addEventListener("click", async function () {
+            await onPanToPlace(place.id);
+        });
+
+        li.appendChild(goButton);
+    }
+}
+
 async function onPanToPlace(placeId) {
     const place = await placeService.getPlaceById(placeId)
     gMap.setCenter({ lat: place.lat, lng: place.lng })
@@ -108,14 +120,15 @@ async function renderMarkers() {
     const places = await placeService.getPlaces()
     // remove previous markers 
     gMarkers.forEach(marker => marker.setMap(null))
+
     // every place is creating a marker 
-    gMarkers = places.map(place => {
+    gMarkers.push(...places.map(place => {
         return new google.maps.Marker({
             position: place,
             map: gMap,
             title: place.name
         })
-    })
+    }))
 }
 async function onRemovePlace(placeId) {
     await placeService.removePlace(placeId);
@@ -144,7 +157,6 @@ function showPrefs() {
 function selectedPrefs() {
     showPrefs();
     hideMap();
-    // hideHome();
     let form = document.getElementById("userForm");
     user = userService.getUser()
     if (user) {
@@ -203,12 +215,6 @@ function submitForm(event) {
     let birthDate = form.elements["birthDate"].value;
     let birthTime = form.elements["birthTime"].value;
 
-    // console.log("Email: " + email);
-    // console.log("Age: " + age);
-    // console.log("Text Color: " + txtColor);
-    // console.log("Background Color: " + bgColor);
-    // console.log("Birth Date: " + birthDate);
-    // console.log("Birth Time: " + birthTime);
     hidePrefs()
     user = {
         email: email,
@@ -219,7 +225,6 @@ function submitForm(event) {
         birthTime: birthTime
     }
     let userJson = JSON.stringify(user)
-    // console.log("user:", userJson);
     userService.setUser(userJson);
     setHomeStyleFromUser(user);
     showMap()

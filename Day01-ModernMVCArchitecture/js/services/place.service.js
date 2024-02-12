@@ -8,11 +8,6 @@ export const placeService = {
 }
 async function getPlaces() {
     return JSON.parse(localStorage.getItem(placesID)) || [];
-    // let placesString = localStorage.getItem("places")
-    // if (placesString)
-    // {
-    //     return JSON.parse(placesString);
-    // }
 }
 async function removePlace(placeId) {
     const places = await getPlaces();
