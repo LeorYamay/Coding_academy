@@ -257,3 +257,15 @@ a.active {
 	padding: 10px 20px;
 	cursor: pointer;
   }
+
+  .count-down-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 2rem;
+  }
+  
+  .red-counter {
+	color: red;
+	font-weight: bold;
+  }

@@ -1,0 +1,15 @@
+const{ useState, useEffect} = React
+exportfunctionMouseMonitor() {
+const[pos, setPos] = useState({ x:0, y:0})
+useEffect(() =>{
+document.onmousemove= (ev) =>{
+setPos({ x:ev.clientX, y:ev.clientY})
+}
+return() =>{
+document.onmousemove= null
+}
+}, [])
+return<div>
+x:{pos.x}y:{pos.y}
+</div>
+}
