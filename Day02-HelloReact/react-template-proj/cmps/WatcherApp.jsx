@@ -28,6 +28,7 @@ export function WatcherApp() {
     }
     const onDeleteWatcher = async (watcherid) => {
         await watcherService.remove(watcherid)
+        setSelectedWatcher(null)
         asyncFetchWatchers()
     }
     const addWatcher = async () => {

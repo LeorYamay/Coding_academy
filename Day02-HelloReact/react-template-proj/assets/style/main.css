@@ -302,3 +302,12 @@ a.active {
 	color: white;
 	padding: 10px;
   }
+
+  .count-down.component {
+	border: 2px dashed;
+	border-image: radial-gradient(square at center, darkblue 20%, lightblue 20%);
+	border-image-slice: 1;
+	padding: 10px; 
+	margin: 5px;
+  }
+  
