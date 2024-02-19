@@ -294,3 +294,11 @@ a.active {
 	width: 150px;
 	align-content: center;
   }
+  .mouse-monitor-component {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	background-color: black;
+	color: white;
+	padding: 10px;
+  }
