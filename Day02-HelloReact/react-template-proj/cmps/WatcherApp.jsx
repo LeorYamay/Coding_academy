@@ -1,35 +1,45 @@
 
 import { utilService } from '../services/util.service.js'
+import { watcherService } from '../services/watcher.service.js'
+
 const { useState, useRef, useEffect } = React
 
 export function WatcherApp() {
 
     const [watchers, setWatchers] = useState([])
     const [selectedWatcher, setSelectedWatcher] = useState(null)
-
+    const getWatchers = async () => {
+        const tempWatchers = await watcherService.query()
+        return tempWatchers
+    }
+    async function asyncFetchWatchers() {
+        const wats = await watcherService.query()
+        setWatchers(wats)
+    }
     useEffect(() => {
-        setWatchers([{ id: 'w101', fullname: 'Puki Ba', movies: ['Rambo', 'Rocky'] }, { id: 'y101', fullname: 'Juki Ma', movies: ['Rambo', 'Rocky'] }])
+
+        asyncFetchWatchers()
     }, [])
-    const onSelectWatcher = (watcherid) => {
-        const selected = watchers.find(watcher => watcher.id === watcherid)
+    const onSelectWatcher = async (watcherid) => {
+        const selected = await watcherService.get(watcherid)
         setSelectedWatcher(selected);
     }
-    const onDeleteWatcher = (watcherid) => {
-        const updatedWatchers = watchers.filter(watcher => watcher.id !== watcherid);
-        setWatchers(updatedWatchers);
+    const onDeleteWatcher = async (watcherid) => {
+        await watcherService.remove(watcherid)
+        asyncFetchWatchers()
     }
-    const addWatcher = () => {
+    const addWatcher = async () => {
         const watcher = {};
         let fullname = prompt("What is your fullname?")
         if (fullname) {
             watcher.fullname = fullname
             let movies = prompt("what are your movies. (comma seperated)")
-            if (movies) {
-                watcher.movies = movies.split(",")
-                watcher.id = utilService.makeId()
-                const newWatchers = watchers.concat(watcher)
-                setWatchers(newWatchers)
-            }
+            watcher.movies = movies.split(",")
+            // watcher.id = utilService.makeId()
+            // const newWatchers = watchers.concat(watcher)
+            // setWatchers(newWatchers)
+            await watcherService.save(watcher)
+            asyncFetchWatchers()
         }
     }
     const onCloseModal = () => {
@@ -40,18 +50,32 @@ export function WatcherApp() {
             <section className="watcher-app-container">
                 <button onClick={() => addWatcher()}>Add Watcher</button>
                 <div className="watchers-container">
-                    {watchers.map(watcher => <Watcher key={watcher.id} watcher={watcher} onSelectWatcher={onSelectWatcher} onDeleteWatcher={onDeleteWatcher} />)}
+                    {
+                        watchers.map(
+                            watcher =>
+                                <Watcher key={watcher.id} watcher={watcher} onSelectWatcher={onSelectWatcher} onDeleteWatcher={onDeleteWatcher} />)
+                    }
                 </div>
                 {selectedWatcher && <WatcherDetailsModal watcher={selectedWatcher} onCloseModal={onCloseModal} />}
             </section>
         </header>
     )
 }
-
+const getNumberFromString = (inputString) => {
+    let result = 1
+    if (inputString) {
+        let sum = inputString.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        result = (sum % 4) + 1;
+    }
+    return result;
+}
 export function Watcher({ watcher, onSelectWatcher, onDeleteWatcher }) {
+
+    const setNumber = getNumberFromString(watcher.id)
     return (
         <div className="watcher">
             {/* <div>{`id:${watcher.id}`}</div> */}
+            <img src={`https://robohash.org/${watcher.id}?set=set${setNumber}`} />
             <div>{`${watcher.fullname}`}</div>
             <button onClick={() => onSelectWatcher(watcher.id)}>Select </button>
             <button onClick={() => onDeleteWatcher(watcher.id)}>X</button>
@@ -61,9 +85,11 @@ export function Watcher({ watcher, onSelectWatcher, onDeleteWatcher }) {
 }
 
 export function WatcherDetailsModal({ watcher, onCloseModal }) {
+    const setNumber = getNumberFromString(watcher.id)
     return (
         <ul className="watcher-details-modal">
             <li>{`id:${watcher.id}`}</li>
+            <img src={`https://robohash.org/${watcher.id}?set=set${setNumber}`} />
             <li>{`fullname:${watcher.fullname}`}</li>
             <li>{`movies:${watcher.movies.join(",")}`}</li>
             <button onClick={() => onCloseModal()}>Close</button>
