@@ -13,11 +13,11 @@ export function RootCmp() {
         <section className="app main-layout">
             <AppHeader />
                 <main>
-                    {/* <Home /> */}
-                    {/* <AnimalList animals={animalInfos}/>
+                    <Home /> 
+                    <AnimalList animals={animalInfos}/>
                     <SeasonClock/>
                     <CountDown startFrom={10} onDone = {()=>{console.log("done")}} />
-                    <CountDown toTime={Date.now() + 10*1000} onDone={()=>{ console.log('Its Time!') }} /> */}
+                    <CountDown toTime={Date.now() + 10*1000} onDone={()=>{ console.log('Its Time!') }} />
                     <WatcherApp/>
                     <MouseMonitor/>
                 </main>

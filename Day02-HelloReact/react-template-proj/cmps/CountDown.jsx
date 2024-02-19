@@ -2,8 +2,7 @@
 import { utilService } from '../services/util.service.js'
 const { useState, useRef, useEffect } = React
 export function CountDown({ startFrom, onDone, toTime = null }) {
-
-    const toTimeValue = (toTime-Date.now()) / 1000
+    const toTimeValue = Math.ceil((toTime-Date.now()) / 1000)
     const [counter, setCounter] = useState(toTime ? toTimeValue : startFrom )
     const [audioLoaded, setAudioLoaded] = useState(false);
     // counter in seconds
@@ -45,9 +44,12 @@ export function CountDown({ startFrom, onDone, toTime = null }) {
     const sound = new Audio('../assets/audio/mixkit-click-balloon-small-burst-3070.wav')
     const formattedTime = (counter) => {
         //todo fix issue with onDone
+        // if (counter<1){
+        //     debugger
+        // }
         const hours = counter/(60*60);
         const minutes = (hours-Math.floor(hours))*60;
-        const seconds = (minutes - Math.floor(minutes))*60 +1;
+        const seconds = (minutes - Math.floor(minutes))*60;
 
         const secondsClass = seconds < 6 ? 'red-counter' : '';
         const formattedTime = <div>
@@ -55,7 +57,6 @@ export function CountDown({ startFrom, onDone, toTime = null }) {
             <span>{`${Math.floor(minutes)}:`}</span>
             <span className={secondsClass}>{`${Math.floor(seconds)}`}</span>
             </div>
-
         return formattedTime;
     }
     const seconds = (counter) =>{

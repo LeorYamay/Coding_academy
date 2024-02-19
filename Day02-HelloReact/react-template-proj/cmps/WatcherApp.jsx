@@ -8,6 +8,12 @@ export function WatcherApp() {
 
     const [watchers, setWatchers] = useState([])
     const [selectedWatcher, setSelectedWatcher] = useState(null)
+    
+    useEffect(() => {
+
+        asyncFetchWatchers()
+    }, [])
+
     const getWatchers = async () => {
         const tempWatchers = await watcherService.query()
         return tempWatchers
@@ -16,10 +22,6 @@ export function WatcherApp() {
         const wats = await watcherService.query()
         setWatchers(wats)
     }
-    useEffect(() => {
-
-        asyncFetchWatchers()
-    }, [])
     const onSelectWatcher = async (watcherid) => {
         const selected = await watcherService.get(watcherid)
         setSelectedWatcher(selected);
@@ -35,9 +37,6 @@ export function WatcherApp() {
             watcher.fullname = fullname
             let movies = prompt("what are your movies. (comma seperated)")
             watcher.movies = movies.split(",")
-            // watcher.id = utilService.makeId()
-            // const newWatchers = watchers.concat(watcher)
-            // setWatchers(newWatchers)
             await watcherService.save(watcher)
             asyncFetchWatchers()
         }
@@ -70,7 +69,6 @@ const getNumberFromString = (inputString) => {
     return result;
 }
 export function Watcher({ watcher, onSelectWatcher, onDeleteWatcher }) {
-
     const setNumber = getNumberFromString(watcher.id)
     return (
         <div className="watcher">
