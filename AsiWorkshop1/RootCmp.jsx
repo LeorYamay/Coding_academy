@@ -5,11 +5,11 @@ import { AppPosts } from "./cmps/AppPosts.jsx"
 
 export function RootCmp() {
     return (
-        <section >
+        <body className="app-container">
             <AppHeader />
             <AppPosts />
             <AppFooter />
-        </section>
+        </body>
 
     )
 }

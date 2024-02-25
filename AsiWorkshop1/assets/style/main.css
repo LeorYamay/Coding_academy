@@ -1,6 +1,12 @@
 body{
 	margin: 0px;
 }
+.app-container{
+	margin: 0px;
+	display: grid;
+	grid-template-columns:1fr minmax(auto, 491.5px) minmax(auto, 491.5px) 1fr;
+	grid-template-rows:133px 2fr 318px;
+}
 .green-period{
 	color: #58C93A;
 }
@@ -8,12 +14,6 @@ body{
 	font-family: 'eurofurence  regular';
 	font-size: 40px;
 }
-.blogo-header {
-	flex: 4;
-	display: flex;
-	justify-content: center;
-	}
-
 	
 @font-face {
     font-family: "eurofurence  regular";
@@ -26,28 +26,90 @@ body{
 }
 
 .app-header{
+	grid-column: 1/span 4;
+	grid-row: 1/span 1;
+	grid-template-columns: subgrid;
 	background-color: black;
 	height: 133px;
-	display: flex;
 	color: white;
-	flex-direction: row;
+
 	align-items: center;
-	justify-content: space-around;
+	display: grid;
+
 }
+.blogo-header {
+	grid-column: 2/span 1;
+	grid-row: 1/span 1;
+	}
 .header-button-container{
+	grid-column: 3/span 1;
+	grid-row: 1/span 1;
 	display:flex;
-	flex:6;
+	align-content: space-between;
+
+	width: fit-content;
+	height: 100%;
+	justify-self:end;
+
+}
+.header-button{
+	display: flex;
+	width:135px;
+	justify-content: center;
+  align-items: center;
+	font-family: 'Lato Bold';
+}
+.header-button:hover{
+	color: #58C93A;
+	cursor: pointer;
+}
+.posts-container{
+	display: grid;
+	grid-column: 2/ span 2;
+	grid-row: 2/ span 1;
+	grid-template-columns: subgrid;
+	/* width:983px; */
+	width: 100px;
+}
+.post-container{
+	grid-column: 1/ span 2;
+	font-family: 'Lato';
+}
+.post-button{
+	padding: 10px;
+    border-radius: 22px;
+    border: solid black;
+    width: fit-content;
+	font-family: 'Lato Bold';
+}
+.post-button:hover{
+	border: solid #58C93A;
+	color: #58C93A;
+	cursor: pointer;
+}
+.hidden-arrow{
+	display:none;
+}
+.post-button:hover .hidden-arrow{
+	display:inline;
+	
+}
+.post-content{
+	overflow: auto;
+}
+.post-title{
+	font-size: 28px;
 }
 .app-footer{
 	border: solid black 1px;
 	height: 318px;
 	background-color: RGBA(248, 248, 248, 1);
-	position: fixed;
-	bottom: 0px;
 	display: flex;
-	width: 100%;
 	flex-direction: column;
-	align-items: center;
+	align-items: center; 
+	justify-content: center;
+	grid-column: 1/span 4;
+	grid-row: 3/span 1;
 }
 .greyed-text{
 	color: #A6A6A6;
@@ -55,6 +117,8 @@ body{
 	font-style: normal;
 	text-align: center;
 	font-family: 'Lato';
+	padding-top: 32px;
+	padding-bottom: 36px;
 }
 .bold{
 	font-family: 'Lato Bold';
@@ -68,7 +132,7 @@ body{
 	height: 43px;
 	background-color: RGBA(229, 229, 229, 1);
 	transition: background-color 0.3s ease;
-	margin: 8.5px;
+	margin:0 8.5px;
 	display: flex;
   justify-content: center;
   align-items: center;
@@ -77,3 +141,5 @@ body{
 	background-color: RGBA(81, 111, 173, 1);
 	cursor: pointer;
 }
+
+
